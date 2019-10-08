@@ -186,9 +186,9 @@ def export(blender_scene, selected, hubs_config, registered_hubs_components):
     export_settings['gltf_layers'] = True
     export_settings['gltf_extras'] = False
     export_settings['gltf_yup'] = True
-    export_settings['gltf_apply'] = False
+    export_settings['gltf_apply'] = True
     export_settings['gltf_current_frame'] = False
-    export_settings['gltf_animations'] = False
+    export_settings['gltf_animations'] = True
     export_settings['gltf_frame_range'] = False
     export_settings['gltf_move_keyframes'] = False
     export_settings['gltf_force_sampling'] = False
@@ -213,12 +213,17 @@ def export(blender_scene, selected, hubs_config, registered_hubs_components):
     # In most recent version this function will return active_scene
     # as the first value for a total of 3 return values
     scenes, _animations = gltf2_blender_gather.gather_gltf2(export_settings)
+    
 
     for gltf_scene in scenes:
         gltf_scene.extensions = patched_gather_extensions(blender_scene, export_settings)
 
     exporter = GlTF2Exporter(export_settings['gltf_copyright'])
     exporter.add_scene(scenes[0], True)
+
+    if export_settings['gltf_animations']:
+        for animation in _animations:
+            exporter.add_animation(animation)
 
     buffer = exporter.finalize_buffer(export_settings['gltf_filedirectory'], is_glb=True)
     exporter.finalize_images(export_settings['gltf_filedirectory'])
